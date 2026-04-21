@@ -1,12 +1,15 @@
 // Basic Express server setup for image upload and YOLO inference
+
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
 const cors = require('cors');
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
 const PORT = process.env.PORT || 3000;
 
 // Set up multer for file uploads
