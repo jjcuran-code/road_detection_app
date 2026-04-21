@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Road Damage Detection Upload</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background: #f7f7f7; }
+    .container { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px #ccc; max-width: 500px; margin: auto; }
+    h2 { text-align: center; }
+    input[type="file"] { margin: 20px 0; }
+    #result { margin-top: 20px; }
+    .detection { background: #e3f7e3; margin: 8px 0; padding: 10px; border-radius: 5px; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Road Damage Detection</h2>
+    <form id="uploadForm">
+      <input type="file" name="image" accept="image/*" required />
+      <button type="submit">Upload & Detect</button>
+    </form>
+    <div id="result"></div>
+  </div>
+  <script>
+    const form = document.getElementById('uploadForm');
+    const resultDiv = document.getElementById('result');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      resultDiv.innerHTML = 'Processing...';
+      const formData = new FormData(form);
+      try {
+        const res = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.error) {
+          resultDiv.innerHTML = `<div class='error'>${data.error}</div>`;
+        } else if (data.detections && data.detections.length > 0) {
+          resultDiv.innerHTML = '<h4>Detections:</h4>' + data.detections.map(d =>
+            `<div class='detection'><b>${d.class}</b> (Confidence: ${d.confidence.toFixed(2)})<br>BBox: [${d.bbox.map(x => x.toFixed(1)).join(', ')}]</div>`
+          ).join('');
+        } else {
+          resultDiv.innerHTML = '<div>No detections found.</div>';
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<div class='error'>Error: ${err.message}</div>`;
+      }
+    });
+  </script>
+</body>
+</html>
