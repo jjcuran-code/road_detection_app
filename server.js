@@ -6,7 +6,6 @@ const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
 const cors = require('cors');
-const cors = require('cors');
 
 const app = express();
 app.use(cors());
