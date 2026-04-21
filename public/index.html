@@ -31,7 +31,7 @@
       resultDiv.innerHTML = 'Processing...';
       const formData = new FormData(form);
       try {
-        const res = await fetch('/upload', {
+        const res = await fetch('https://road-detection-app.onrender.com/upload', {
           method: 'POST',
           body: formData
         });

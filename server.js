@@ -24,33 +24,41 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     return res.status(400).json({ error: 'No file uploaded' });
   }
   const imagePath = req.file.path;
-  // Call Python script for YOLO inference
-  const pythonProcess = spawn('C:/Users/HP/AppData/Local/Programs/Python/Python313/python.exe', [
-    path.join(__dirname, 'detect.py'),
-    MODEL_PATH,
-    imagePath
-  ]);
-  let result = '';
-  let error = '';
-  pythonProcess.stdout.on('data', (data) => {
-    result += data.toString();
-  });
-  pythonProcess.stderr.on('data', (data) => {
-    error += data.toString();
-  });
-  pythonProcess.on('close', (code) => {
-    // Remove uploaded file after processing
+  try {
+    // Call Python script for YOLO inference
+    const pythonProcess = spawn('python3', [
+      path.join(__dirname, 'detect.py'),
+      MODEL_PATH,
+      imagePath
+    ]);
+    let result = '';
+    let error = '';
+    pythonProcess.stdout.on('data', (data) => {
+      result += data.toString();
+    });
+    pythonProcess.stderr.on('data', (data) => {
+      error += data.toString();
+    });
+    pythonProcess.on('close', (code) => {
+      // Remove uploaded file after processing
+      fs.unlink(imagePath, () => {});
+      if (code !== 0 || error) {
+        return res.status(500).json({ error: error || 'Detection failed', code });
+      }
+      if (!result) {
+        return res.status(500).json({ error: 'No output from detection script', code });
+      }
+      try {
+        const json = JSON.parse(result);
+        res.json(json);
+      } catch (e) {
+        res.status(500).json({ error: 'Invalid detection output', raw: result });
+      }
+    });
+  } catch (err) {
     fs.unlink(imagePath, () => {});
-    if (code !== 0 || error) {
-      return res.status(500).json({ error: error || 'Detection failed' });
-    }
-    try {
-      const json = JSON.parse(result);
-      res.json(json);
-    } catch (e) {
-      res.status(500).json({ error: 'Invalid detection output' });
-    }
-  });
+    res.status(500).json({ error: 'Server error', details: err.message });
+  }
 });
 
 app.listen(PORT, () => {
