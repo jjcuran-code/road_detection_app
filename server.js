@@ -18,7 +18,7 @@ const upload = multer({
 });
 
 app.use(express.static('public'));
-app.use(cors());
+// (do NOT add app.use(cors()) here again)
 
 // Path to YOLO model weights
 const MODEL_PATH = path.join(__dirname, 'model', 'yolo11s.pt');
