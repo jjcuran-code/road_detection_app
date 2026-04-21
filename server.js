@@ -27,7 +27,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
-  const imagePath = req.file.path;
+  const imagePath = path.resolve(req.file.path);
   try {
     // Call Python script for YOLO inference
     const pythonProcess = spawn('python3', [
