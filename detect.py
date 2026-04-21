@@ -1,5 +1,6 @@
 import sys
 import json
+import os
 from ultralytics import YOLO
 
 # Classes as specified
@@ -13,6 +14,7 @@ CLASSES = [
     'B_severity',
     'C_severity'
 ]
+
 
 def main():
     if len(sys.argv) < 3:

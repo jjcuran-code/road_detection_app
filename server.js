@@ -17,7 +17,7 @@ const upload = multer({
 app.use(express.static('public'));
 
 // Path to YOLO model weights
-const MODEL_PATH = path.join(__dirname, 'model', 'yolov8.pt'); // Change filename as needed
+const MODEL_PATH = path.join(__dirname, 'model', 'yolo11s.pt');
 
 app.post('/upload', upload.single('image'), async (req, res) => {
   if (!req.file) {
