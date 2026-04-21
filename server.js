@@ -11,11 +11,19 @@ const app = express();
 app.use(cors());
 const PORT = process.env.PORT || 3000;
 
-// Set up multer for file uploads
-const upload = multer({
-  dest: 'uploads/',
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+
+
+// Set up multer for file uploads, preserving file extension
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + Date.now() + ext);
+  }
 });
+const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
 app.use(express.static('public'));
 // (do NOT add app.use(cors()) here again)
