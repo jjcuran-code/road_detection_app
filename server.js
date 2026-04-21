@@ -11,7 +11,11 @@ const app = express();
 app.use(cors());
 const PORT = process.env.PORT || 3000;
 
-
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Set up multer for file uploads, preserving file extension
 const storage = multer.diskStorage({
