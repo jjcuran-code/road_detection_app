@@ -58,17 +58,24 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     pythonProcess.on('close', (code) => {
       // Remove uploaded file after processing
       fs.unlink(imagePath, () => {});
-      if (code !== 0 || error) {
-        return res.status(500).json({ error: error || 'Detection failed', code });
+      if (code !== 0) {
+        console.error(`Python script failed with code ${code}. stderr: ${error}. stdout: ${result}`);
+        return res.status(500).json({ error: error || 'Detection failed', code, details: result });
       }
-      if (!result) {
+      if (error) {
+        console.error(`Python stderr: ${error}`);
+        return res.status(500).json({ error: error, code });
+      }
+      if (!result || result.trim() === '') {
+        console.error('Python script returned empty output');
         return res.status(500).json({ error: 'No output from detection script', code });
       }
       try {
         const json = JSON.parse(result);
         res.json(json);
       } catch (e) {
-        res.status(500).json({ error: 'Invalid detection output', raw: result });
+        console.error(`JSON parse error: ${e.message}. Raw output: ${result}`);
+        res.status(500).json({ error: 'Invalid detection output', raw: result, parseError: e.message });
       }
     });
   } catch (err) {
