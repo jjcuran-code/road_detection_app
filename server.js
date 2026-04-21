@@ -4,6 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +16,7 @@ const upload = multer({
 });
 
 app.use(express.static('public'));
+app.use(cors());
 
 // Path to YOLO model weights
 const MODEL_PATH = path.join(__dirname, 'model', 'yolo11s.pt');
